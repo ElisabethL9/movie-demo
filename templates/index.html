@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Database</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Movie Database</h1>
+    </header>
+
+    <div class="filters-container">
+        <form action="/" method="get" class="filters-form">
+            <div class="search-box">
+                <input type="text" 
+                       name="search" 
+                       placeholder="Search movies, directors..." 
+                       value="{{ search_query }}"
+                       class="search-input">
+            </div>
+
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="genre">Genre:</label>
+                    <select name="genre" id="genre">
+                        <option value="all" {% if genre_filter == 'all' %}selected{% endif %}>All Genres</option>
+                        {% for genre in genres %}
+                        <option value="{{ genre.genre }}" {% if genre_filter == genre.genre %}selected{% endif %}>
+                            {{ genre.genre }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="movement">Film Movement:</label>
+                    <select name="movement" id="movement">
+                        <option value="all" {% if movement_filter == 'all' %}selected{% endif %}>All Movements</option>
+                        {% for movement in movements %}
+                        <option value="{{ movement.film_movement }}" {% if movement_filter == movement.film_movement %}selected{% endif %}>
+                            {{ movement.film_movement }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Year Range:</label>
+                    <div class="year-range">
+                        <input type="number" 
+                               name="year_min" 
+                               value="{{ year_min }}" 
+                               min="{{ year_range.min_year }}" 
+                               max="{{ year_range.max_year }}">
+                        <span>to</span>
+                        <input type="number" 
+                               name="year_max" 
+                               value="{{ year_max }}" 
+                               min="{{ year_range.min_year }}" 
+                               max="{{ year_range.max_year }}">
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label for="rating_min">Minimum IMDb Rating:</label>
+                    <input type="number" 
+                           name="rating_min" 
+                           id="rating_min" 
+                           value="{{ rating_min }}" 
+                           min="0" 
+                           max="10" 
+                           step="0.1">
+                </div>
+            </div>
+
+            <button type="submit" class="filter-button">Apply Filters</button>
+            <a href="/" class="reset-button">Reset Filters</a>
+        </form>
+    </div>
+
+    <div class="sort-container">
+        <form action="/" method="get" class="sort-form">
+            <input type="hidden" name="search" value="{{ search_query }}">
+            <input type="hidden" name="genre" value="{{ genre_filter }}">
+            <input type="hidden" name="movement" value="{{ movement_filter }}">
+            <input type="hidden" name="year_min" value="{{ year_min }}">
+            <input type="hidden" name="year_max" value="{{ year_max }}">
+            <input type="hidden" name="rating_min" value="{{ rating_min }}">
+            
+            <div class="sort-controls">
+                <div class="sort-group">
+                    <label for="sort">Sort by:</label>
+                    <select name="sort" id="sort" onchange="this.form.submit()">
+                        <option value="title" {% if sort_by == 'title' %}selected{% endif %}>Title</option>
+                        <option value="year" {% if sort_by == 'year' %}selected{% endif %}>Year</option>
+                        <option value="director" {% if sort_by == 'director' %}selected{% endif %}>Director</option>
+                        <option value="imdb_rating" {% if sort_by == 'imdb_rating' %}selected{% endif %}>IMDb Rating</option>
+                        <option value="rotten_tomatoes_rating" {% if sort_by == 'rotten_tomatoes_rating' %}selected{% endif %}>Rotten Tomatoes</option>
+                    </select>
+                </div>
+                
+                <div class="sort-group">
+                    <label for="order">Order:</label>
+                    <select name="order" id="order" onchange="this.form.submit()">
+                        <option value="desc" {% if sort_order == 'desc' %}selected{% endif %}>Descending</option>
+                        <option value="asc" {% if sort_order == 'asc' %}selected{% endif %}>Ascending</option>
+                    </select>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <main>
+        <section class="movies-grid">
+            {% for movie in movies %}
+            <div class="movie-card">
+                <img src="{{ movie.image_url }}" alt="{{ movie.title }}">
+                <div class="movie-info">
+                    <h4>{{ movie.title }}</h4>
+                    <p>{{ movie.year }} | {{ movie.director }}</p>
+                    <p class="movie-movement">{{ movie.film_movement }}</p>
+                    <div class="ratings">
+                        <p class="rating imdb">
+                            <span class="rating-label">IMDb:</span>
+                            <span class="rating-value">★ {{ movie.imdb_rating }}/10</span>
+                        </p>
+                        <p class="rating tomatoes">
+                            <span class="rating-label">Rotten Tomatoes:</span>
+                            <span class="rating-value">🍅 {{ movie.rotten_tomatoes_rating }}%</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html> 
